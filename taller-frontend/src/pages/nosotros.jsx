@@ -2,7 +2,7 @@ function Nosotros() {
     return (
         <div className="p-8">
             <h1 className="text-3xl font-bold text-blue-600 mb-6">Sobre Nosotros</h1>
-            <p>Contenido de la página Nosotros</p>
+            <p>Conteni</p>
         </div>
     );
 }

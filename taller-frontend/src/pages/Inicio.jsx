@@ -6,6 +6,8 @@ function Inicio() {
   "/src/assets/taller frente1.jpeg",
   "/src/assets/taller frente2.jpeg",
   "/src/assets/refa.jpeg",
+  "/src/assets/foto refe.jpeg",
+  "/src/assets/refe2.jpeg",
 ];
 
 const [index, setIndex] = useState(0);
@@ -31,7 +33,7 @@ return () => clearInterval(intervalo);
     <section className="w-full">
 
       {/* HERO SIN CONTENEDORES LATERALES */}
-      <div className="w-full overflow-hidden shadow-lg relative h-screen">
+      <div className="w-full overflow-hidden shadow-lg relative h-[50vh]">
         
         <img
           src={imagenes[index]}
@@ -44,11 +46,27 @@ return () => clearInterval(intervalo);
       
        {/* Bienvenidos */}
           <div className="absolute inset-0 flex items-center justify-center text-center">
-        <h1 className="text-4xl font-bold text-blue md:text-6x1 drop-shadow-lg">
-          Bienvenido a autoservicio San Jorge
+        <h1 className="text-4xl font-bold text-white md:text-6xl  drop-shadow-lg">
+         Bienvenido a autoservicio San Jorge 
         </h1> 
-  
-        </div>
+     </div>
+</div>
+{ /*}
+ <div className = "w-full overflow-hidden shadow-lg relative h-[10vh] bg-white">
+  <div className="absolute inset-0 flex items-center justify-center text-center ">
+    <h1 className= "text-4xl font-bold text-blue-800 md:text-5xl drop-shadow-lg">
+    { /* Bienvenido a autoservicio San Jorge 
+    </h1>
+    </div>
+ </div>
+*/}
+  {/* Hero de experiencia */}
+<div className= "w-full overflow-hidden shadow-lg relative h-[10vh] bg-blue-900">
+<div className= "absolute inset-0 flex items-center justify-center text-center text-white md:text-3x1">
+<h1 className = "text-2x1 font-bold text-white drop-shadow-lg">
+  Mas de 30 años de experiencia cuidando tu vehículo con pasión y profesionalismo
+  </h1>
+</div>
 </div>
        {/*servicios*/}
        <div className= "text-center mt-10 px-4">
