@@ -181,13 +181,6 @@ function Register() {
               </Link>
             </p>
           </div>
-
-          {/* Quick test info */}
-          <div className="mt-8 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded">
-            <p className="text-yellow-800 text-sm font-semibold">💡 Ejemplo de contraseña válida:</p>
-            <p className="text-yellow-700 text-xs mt-1">• password123</p>
-            <p className="text-yellow-700 text-xs">• correo123</p>
-          </div>
         </div>
       </div>
     </div>
