@@ -2,6 +2,7 @@
 .nav-links {
   display: flex;
   gap: 1rem;
+  align-items: center;
 
   a {
     position: relative;
@@ -56,4 +57,26 @@
       }
     }
   }
+
+  .logout-button {
+    background-color: #5a0d03;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 18px;
+    font-weight: 600;
+    text-transform: uppercase;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: #7a1205;
+    }
+
+    &:active {
+      background-color: #4a0a02;
+    }
+  }
 }
+
