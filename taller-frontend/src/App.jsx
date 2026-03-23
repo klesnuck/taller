@@ -1,4 +1,4 @@
-import { Routes, Route, Link, useNavigate } from "react-router-dom";
+import { Routes, Route, Link, useNavigate, useLocation } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "./context/AuthContext";
 import Inicio from "./pages/Inicio";
@@ -7,6 +7,7 @@ import FormularioCarro from "./pages/FormularioCarro";
 import Nosotros from "./pages/nosotros";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import logo from "./assets/logg.png";
 import "./styles/barra.scss";
@@ -14,6 +15,8 @@ import "./styles/barra.scss";
 function App() {
   const { isAuthenticated, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith("/admin");
 
   const handleLogout = () => {
     logout();
@@ -23,7 +26,7 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-100 text-center">
  
-      {isAuthenticated && (
+      {isAuthenticated && !isAdminRoute && (
         <nav className="bg-blue-950 text-white px-4 py-2 flex gap-4 items-center text-lg justify-between">
           <Link to="/" className="flex items-center">
             <img src={logo} alt="Logo San Jorge" className="h-12" />
@@ -49,6 +52,7 @@ function App() {
         <Route path="/servicios" element={<ProtectedRoute><Servicios /></ProtectedRoute>} />
         <Route path="/formulario" element={<ProtectedRoute><FormularioCarro /></ProtectedRoute>} />
         <Route path="/nosotros" element={<ProtectedRoute><Nosotros /></ProtectedRoute>} />
+        <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
       </Routes>
     </div>
   );
