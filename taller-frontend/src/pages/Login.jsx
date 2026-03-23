@@ -34,7 +34,11 @@ function Login() {
 
     setTimeout(() => {
       if (login(email, password)) {
-        navigate("/");
+        if (email.toLowerCase().includes("admin")) {
+          navigate("/admin");
+        } else {
+          navigate("/");
+        }
       } else {
         setError("Correo o contraseña incorrectos");
         setPassword("");

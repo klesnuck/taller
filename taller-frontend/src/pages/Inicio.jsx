@@ -2,85 +2,85 @@ import { useState, useEffect } from "react";
 import Mapa from "/src/components/mapa.jsx";
 
 function Inicio() {
-  const imagenes= [
-  "/src/assets/taller frente1.jpeg",
-  "/src/assets/taller frente2.jpeg",
-  "/src/assets/refa.jpeg",
-  "/src/assets/foto refe.jpeg",
-  "/src/assets/refe2.jpeg",
-];
+  const imagenes = [
+    "/src/assets/f1.jpeg",
+    "/src/assets/f2.jpeg",
+    "/src/assets/f3.jpeg",
+    "/src/assets/f4.jpeg",
+    "/src/assets/f5.jpeg",
+    "/src/assets/f6.jpeg",
+    "/src/assets/f7.jpeg",
+  ];
 
-const [index, setIndex] = useState(0);
-const [fade, setFade] = useState(true);
+  const [index, setIndex] = useState(0);
+  const [fade, setFade] = useState(true);
 
-//cambiar imagen tiempo
-useEffect(() => {
-const intervalo = setInterval(() => {
-  setFade(false);
+  //cambiar imagen tiempo
+  useEffect(() => {
+    const intervalo = setInterval(() => {
+      setFade(false);
 
-  setTimeout(() => {
-  setIndex((prev) => (prev + 1) % imagenes.length);
-  setFade(true);
-  },500);
-}, 4000);
+      setTimeout(() => {
+        setIndex((prev) => (prev + 1) % imagenes.length);
+        setFade(true);
+      }, 500);
+    }, 4000);
 
-return () => clearInterval(intervalo);
-}, []);
+    return () => clearInterval(intervalo);
+  }, []);
 
   return (
-// carrusel de imagenes 
+    // carrusel de imagenes 
 
     <section className="w-full">
 
       {/* HERO SIN CONTENEDORES LATERALES */}
-      <div className="w-full overflow-hidden shadow-lg relative h-[50vh]">
-        
+      <div className="w-full relative h-[500px]">
+
         <img
           src={imagenes[index]}
           className={`w-full h-full ¿ object-cover object-center transition-opacity duration-700 ease-in-out ${fade ? "opacity-100" : "opacity-0"}`}
           alt="Taller San Jorge"
         />
-      
+
         {/*degradado de la imagen*/}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/70 pointer-events-none"></div>
-      
-       {/* Bienvenidos */}
-          <div className="absolute inset-0 flex items-center justify-center text-center">
-        <h1 className="text-4xl font-bold text-white md:text-6xl  drop-shadow-lg">
-         Bienvenido a autoservicio San Jorge 
-        </h1> 
-     </div>
-</div>
-{ /*}
- <div className = "w-full overflow-hidden shadow-lg relative h-[10vh] bg-white">
-  <div className="absolute inset-0 flex items-center justify-center text-center ">
-    <h1 className= "text-4xl font-bold text-blue-800 md:text-5xl drop-shadow-lg">
-    { /* Bienvenido a autoservicio San Jorge 
-    </h1>
-    </div>
- </div>
-*/}
-  {/* Hero de experiencia */}
-<div className= "w-full overflow-hidden shadow-lg relative h-[10vh] bg-blue-900">
-<div className= "absolute inset-0 flex items-center justify-center text-center text-white md:text-3x1">
-<h1 className = "text-2x1 font-bold text-white drop-shadow-lg">
-  Mas de 30 años de experiencia cuidando tu vehículo con pasión y profesionalismo
-  </h1>
-</div>
-</div>
-       {/*servicios*/}
-       <div className= "text-center mt-10 px-4">
+
+        {/* Bienvenidos */}
+        <div className="absolute inset-0 flex flex-col justify-center items-start text-left px-6 md:px-12 text-white">
+          <p className="text.sm md:text-base mb-2 opacity-80">
+            Mas de 30 años cuidando tu vehiculo
+          </p>
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4">
+            Bienvenidos a  Autoservicio <br />San Jorge.
+          </h1>
+          <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">
+            Agendar cita
+          </button>
+        </div>
+      </div>
+
+      {/* Hero de experiencia */}
+      <div className="w-full overflow-hidden shadow-lg relative h-[10vh] bg-blue-900">
+        <div className="absolute inset-0 flex items-center justify-center text-center text-white md:text-3x1">
+          <h1 className="text-2x1 font-bold text-white drop-shadow-lg">
+            Mas de 30 años de experiencia cuidando tu vehículo con pasión y profesionalismo
+          </h1>
+        </div>
+      </div>
+      {/*servicios*/}
+      <div className="text-center mt-10 px-4">
         <h1 className="text-4xl font-bold text-blue-800">
           Nuestros servicios
         </h1>
-       </div>
-       
+      </div>
+
       {/* RECUADROS DE SERVICIOS */}
       <div className="w-full bg-gray-100 py-8">
         <div className="w-[90%] sm:w-[80%] max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm md:shadow-md text-center">
             <div className="w-16 h-16 mx-auto flex items-center justify-center bg-blue-50 rounded-full text-blue-600 mb-4 text-5xl">
-             <h3> 🔧</h3>
+              <h3> 🔧</h3>
             </div>
             <h3 className="text-lg font-semibold text-gray-800 mb-2">Mecánica General</h3>
             <p className="text-sm text-gray-600">Mantenimiento preventivo y reparaciones con garantía.</p>
@@ -134,19 +134,19 @@ return () => clearInterval(intervalo);
         </div>
 
         {/* Información del taller */}
-        
+
         <div className="flex flex-col justify-center items-center text-center">
           <p className="text-gray-700 max-w-md mb-6 mt-4 text-justify">
-           Con más de 30 años de experiencia, nuestro taller se ha consolidado como un referente de confianza, calidad y 
-           compromiso en el cuidado automotriz. A lo largo de tres décadas hemos acompañado a generaciones de clientes, 
-           evolucionando junto con la tecnología sin perder los valores que nos distinguen: honestidad, profesionalismo y
-            atención personalizada. Cada vehículo que llega a nuestras instalaciones es tratado con la misma dedicación y 
+            Con más de 30 años de experiencia, nuestro taller se ha consolidado como un referente de confianza, calidad y
+            compromiso en el cuidado automotriz. A lo largo de tres décadas hemos acompañado a generaciones de clientes,
+            evolucionando junto con la tecnología sin perder los valores que nos distinguen: honestidad, profesionalismo y
+            atención personalizada. Cada vehículo que llega a nuestras instalaciones es tratado con la misma dedicación y
             precisión, combinando el conocimiento adquirido con el paso de los años y las herramientas más modernas del sector.
             Nuestra trayectoria no solo se mide en tiempo, sino en la satisfacción de quienes han confiado en nosotros, en soluciones
-             efectivas, diagnósticos certeros y un servicio que respalda su seguridad y tranquilidad en cada kilómetro recorrido.
+            efectivas, diagnósticos certeros y un servicio que respalda su seguridad y tranquilidad en cada kilómetro recorrido.
 
           </p>
-    
+
         </div>
       </div>
 
