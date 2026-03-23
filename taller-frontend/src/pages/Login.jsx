@@ -33,8 +33,9 @@ function Login() {
     setLoading(true);
 
     setTimeout(() => {
-      if (login(email, password)) {
-        if (email.toLowerCase().includes("admin")) {
+      const result = login(email, password);
+      if (result.success) {
+        if (result.user?.role === "Administrador") {
           navigate("/admin");
         } else {
           navigate("/");
@@ -141,9 +142,9 @@ function Login() {
 
           {/* Quick test info */}
           <div className="mt-8 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded">
-            <p className="text-yellow-800 text-sm font-semibold">💡 Prueba rápida:</p>
-            <p className="text-yellow-700 text-xs mt-1">• Cliente: cualquier correo sin "admin"</p>
-            <p className="text-yellow-700 text-xs">• Admin: correo con "admin" (ej: admin@sanjorge.com)</p>
+            <p className="text-yellow-800 text-sm font-semibold">💡 Usuario Administrador:</p>
+            <p className="text-yellow-700 text-xs mt-1">• Correo: "admin@admin.com"</p>
+            <p className="text-yellow-700 text-xs">• Contraseña: "admin123"</p>
           </div>
         </div>
       </div>

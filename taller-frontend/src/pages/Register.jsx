@@ -3,14 +3,16 @@ import { useNavigate, Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
 function Register() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [role, setRole] = useState("Cliente");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { register } = useContext(AuthContext);
+  const { register, roles } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const validateEmail = (email) => {
@@ -29,7 +31,7 @@ function Register() {
     e.preventDefault();
     setError("");
 
-    if (!email || !password || !confirmPassword) {
+    if (!name || !email || !role || !password || !confirmPassword) {
       setError("Por favor rellena todos los campos");
       return;
     }
@@ -52,7 +54,7 @@ function Register() {
     setLoading(true);
 
     setTimeout(() => {
-      const result = register(email, password);
+      const result = register({ name, email, password, role });
       if (result.success) {
         navigate("/login");
       } else {
@@ -92,6 +94,18 @@ function Register() {
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Nombre */}
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">Nombre completo</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Juan Pérez García"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+
             {/* Email field */}
             <div>
               <label className="block text-gray-700 font-semibold mb-2">
@@ -104,6 +118,22 @@ function Register() {
                 placeholder="ejemplo@correo.com"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
+            </div>
+
+            {/* Role field */}
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">Rol</label>
+              <select
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+              >
+                {roles.map((roleOption) => (
+                  <option key={roleOption.id} value={roleOption.name}>
+                    {roleOption.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Password field */}
