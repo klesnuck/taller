@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import Mapa from "/src/components/mapa.jsx";
 
 function Inicio() {
@@ -54,9 +55,9 @@ function Inicio() {
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4">
             Bienvenidos a  Autoservicio <br />San Jorge.
           </h1>
-          <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">
-            Agendar cita
-          </button>
+          <Link to="/servicios" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg inline-block text-center mt-2">
+            Cotizar
+          </Link>
         </div>
       </div>
 

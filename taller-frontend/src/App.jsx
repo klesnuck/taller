@@ -10,6 +10,15 @@ import Register from "./pages/Register";
 import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
+import ReportesCliente from "./pages/ReportesCliente";
+import AdminCitas from "./pages/AdminCitas";
+import Productos from "./pages/Productos";
+import Compras from "./pages/Compras";
+import Cotizaciones from "./pages/Cotizaciones";
+import Reportes from "./pages/Reportes";
+import Vehiculos from "./pages/Vehiculos";
+import AdminServicios from "./pages/AdminServicios";
+import Ventas from "./pages/Ventas";
 import logo from "./assets/logg.png";
 import "./styles/barra.scss";
 
@@ -38,6 +47,7 @@ function App() {
           <div className="nav-links">
             <Link to="/">Inicio</Link>  
             <Link to="/servicios">Cotizar</Link>
+            <Link to="/mis-reportes">Reportes</Link>
             <Link to="/nosotros">Nosotros</Link>
             <button 
               onClick={handleLogout}
@@ -55,8 +65,17 @@ function App() {
         <Route path="/" element={<ProtectedRoute><Inicio /></ProtectedRoute>} />
         <Route path="/servicios" element={<ProtectedRoute><Servicios /></ProtectedRoute>} />
         <Route path="/formulario" element={<ProtectedRoute><FormularioCarro /></ProtectedRoute>} />
+        <Route path="/mis-reportes" element={<ProtectedRoute><ReportesCliente /></ProtectedRoute>} />
         <Route path="/nosotros" element={<ProtectedRoute><Nosotros /></ProtectedRoute>} />
         <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+        <Route path="/admin/citas" element={<AdminRoute><AdminCitas /></AdminRoute>} />
+        <Route path="/admin/productos" element={<AdminRoute><Productos /></AdminRoute>} />
+        <Route path="/admin/compras" element={<AdminRoute><Compras /></AdminRoute>} />
+        <Route path="/admin/cotizaciones" element={<AdminRoute><Cotizaciones /></AdminRoute>} />
+        <Route path="/admin/reportes" element={<AdminRoute><Reportes /></AdminRoute>} />
+        <Route path="/admin/vehiculos" element={<AdminRoute><Vehiculos /></AdminRoute>} />
+        <Route path="/admin/servicios" element={<AdminRoute><AdminServicios /></AdminRoute>} />
+        <Route path="/admin/ventas" element={<AdminRoute><Ventas /></AdminRoute>} />
       </Routes>
     </div>
   );
