@@ -12,6 +12,8 @@ export default function Productos() {
   const [editando, setEditando] = useState(false);
   const [busqueda, setBusqueda] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [categoriaFiltro, setCategoriaFiltro] = useState('Todas');
+  const [soloBajoStock, setSoloBajoStock] = useState(false);
 
   const manejarEnvio = (e) => {
     e.preventDefault();
@@ -83,22 +85,28 @@ export default function Productos() {
         {/* Categories */}
         <div className="flex justify-between items-center bg-white p-2 rounded-xl border border-gray-200 shadow-sm mb-6 overflow-x-auto">
           <div className="flex gap-1 min-w-max">
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium">Todas las categorías</button>
-            <button className="text-gray-600 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm font-medium">Lubricantes</button>
-            <button className="text-gray-600 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm font-medium">Filtros</button>
-            <button className="text-gray-600 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm font-medium">Frenos</button>
-            <button className="text-gray-600 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm font-medium">Encendido</button>
-            <button className="text-gray-600 hover:bg-gray-50 px-4 py-2 rounded-lg text-sm font-medium">Líquidos</button>
+            {['Todas', 'Lubricantes', 'Filtros', 'Frenos', 'Encendido', 'Líquidos', 'Autopartes'].map(cat => (
+              <button 
+                key={cat}
+                onClick={() => setCategoriaFiltro(cat)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${categoriaFiltro === cat ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-50'}`}
+              >
+                {cat === 'Todas' ? 'Todas las categorías' : cat}
+              </button>
+            ))}
           </div>
           <label className="flex items-center gap-2 pr-4 text-sm text-gray-600 cursor-pointer whitespace-nowrap ml-4">
-            <input type="checkbox" className="rounded" />
+            <input type="checkbox" className="rounded" checked={soloBajoStock} onChange={(e) => setSoloBajoStock(e.target.checked)} />
             Solo mostrar bajo stock
           </label>
         </div>
 
         {/* Product Cards */}
         <div className="space-y-4">
-          {productos.map(p => {
+          {productos
+            .filter(p => categoriaFiltro === 'Todas' || p.categoria === categoriaFiltro)
+            .filter(p => !soloBajoStock || p.stock < p.minStock)
+            .map(p => {
             const stockRatio = (p.stock / p.minStock) * 100;
             const barWidth = Math.min(stockRatio, 100);
             const barColor = stockRatio < 100 ? 'bg-red-500' : 'bg-green-500';
@@ -165,7 +173,12 @@ export default function Productos() {
                     Valor en inventario: <strong className="text-gray-900 ml-1">${(p.stock * p.precio).toLocaleString()}</strong>
                   </div>
                   <div className="flex gap-2 w-full md:w-auto justify-end">
-                    <button className="bg-blue-600 text-white px-4 py-1.5 rounded-lg font-medium hover:bg-blue-700 w-full md:w-auto text-center">Ajustar stock</button>
+                    <button onClick={() => {
+                      const newStock = window.prompt(`Ingresa el nuevo stock para ${p.nombre}:`, p.stock);
+                      if (newStock !== null && !isNaN(newStock) && newStock.trim() !== '') {
+                        setProductos(productos.map(prod => prod.id === p.id ? { ...prod, stock: Number(newStock) } : prod));
+                      }
+                    }} className="bg-blue-600 text-white px-4 py-1.5 rounded-lg font-medium hover:bg-blue-700 w-full md:w-auto text-center">Ajustar stock</button>
                     <button className="bg-gray-50 border border-gray-200 text-gray-600 px-4 py-1.5 rounded-lg font-medium hover:bg-gray-100 w-full md:w-auto text-center">Ver movimientos</button>
                   </div>
                 </div>

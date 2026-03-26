@@ -246,7 +246,12 @@ export default function AdminServicios() {
                     Ingresos generados: <strong className="text-gray-900 font-semibold ml-1">${s.ingresosGenerados.toLocaleString()}</strong>
                   </div>
                   <div className="flex gap-2 w-full md:w-auto justify-end">
-                    <button className="bg-[#1a56db] text-white px-4 py-2 rounded-lg font-medium text-xs hover:bg-blue-800 transition-colors w-full md:w-auto text-center">
+                    <button onClick={() => {
+                      const newPrice = window.prompt(`Ingresa el nuevo precio (Mano de obra) para ${s.nombre}:`, s.manoObra);
+                      if (newPrice !== null && !isNaN(newPrice) && newPrice.trim() !== '') {
+                        setServicios(servicios.map(serv => serv.id === s.id ? { ...serv, manoObra: Number(newPrice) } : serv));
+                      }
+                    }} className="bg-[#1a56db] text-white px-4 py-2 rounded-lg font-medium text-xs hover:bg-blue-800 transition-colors w-full md:w-auto text-center">
                       Actualizar precios
                     </button>
                     <button className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium text-xs hover:bg-gray-200 transition-colors w-full md:w-auto text-center">

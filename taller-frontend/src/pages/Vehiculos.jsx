@@ -263,7 +263,7 @@ export default function Vehiculos() {
 
                 {/* Card Actions */}
                 <div className="mt-5 flex gap-3">
-                  <button className="flex-1 bg-[#1a56db] text-white py-2 rounded-lg text-sm font-semibold hover:bg-blue-800 transition-colors">
+                  <button onClick={() => window.alert(`Historial de servicios para ${v.marca} ${v.modelo}:\n\n- Último servicio: ${v.ultimoServicio}\n- Motivo: Revisión y mantenimiento\n- Kilometraje registrado: ${v.kilometraje} km`)} className="flex-1 bg-[#1a56db] text-white py-2 rounded-lg text-sm font-semibold hover:bg-blue-800 transition-colors">
                     Ver historial
                   </button>
                   <button onClick={() => prepararEdicion(v)} className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg text-sm font-semibold hover:bg-gray-200 transition-colors">

@@ -218,7 +218,7 @@ export default function AdminCitas() {
               {/* Bottom Actions Row */}
               <div className="flex justify-between items-center relative z-10">
                 <div className="flex gap-2">
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors">Ver detalles</button>
+                  <button onClick={() => window.alert(`Detalles de la Cita:\n\nCliente: ${cita.cliente}\nCorreo: ${cita.email}\nTeléfono: ${cita.telefono}\n\nVehículo: ${cita.vehiculo}\nServicio: ${cita.servicio}\n\nFecha Programada: ${cita.fecha} a las ${cita.hora}\nCosto Estimado: $${cita.costo}\nEstado: ${cita.estado}`)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors">Ver detalles</button>
                   <button className="bg-[#10b981] hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors">Confirmar</button>
                   <button className="bg-[#f59e0b] hover:bg-amber-600 text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors">Reagendar</button>
                   <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-xs font-bold transition-colors">Editar</button>
