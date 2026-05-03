@@ -39,7 +39,7 @@ const DEFAULT_ROLES = [
   },
 ];
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000';
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000';
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -110,7 +110,7 @@ export const AuthProvider = ({ children }) => {
       const response = await fetch(`${API_BASE}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, phone }),
+        body: JSON.stringify({ nombre: name, email, contrasena: password, telefono: phone }),
       });
       const data = await response.json();
       if (!response.ok) {
@@ -125,19 +125,21 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setIsAuthenticated(false);
     setCurrentUser(null);
+    localStorage.removeItem('currentUser');
   };
 
   const saveRole = async (role) => {
     try {
-      const method = role.id ? 'PUT' : 'POST';
-      const url = role.id ? `${API_BASE}/api/roles/${role.id}` : `${API_BASE}/api/roles`;
+      const id = role.idroles || role.id;
+      const method = id ? 'PUT' : 'POST';
+      const url = id ? `${API_BASE}/api/roles/${id}` : `${API_BASE}/api/roles`;
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: role.name,
-          description: role.description,
-          permissions: role.permissions,
+          nombre: role.name || role.nombre,
+          descripcion: role.description || role.descripcion,
+          permisos: role.permissions || role.permisos,
           color: role.color,
         }),
       });
@@ -168,17 +170,18 @@ export const AuthProvider = ({ children }) => {
 
   const saveUser = async (user) => {
     try {
-      const method = user.id ? 'PUT' : 'POST';
-      const url = user.id ? `${API_BASE}/api/users/${user.id}` : `${API_BASE}/api/users`;
+      const id = user.idusuarios || user.id;
+      const method = id ? 'PUT' : 'POST';
+      const url = id ? `${API_BASE}/api/users/${id}` : `${API_BASE}/api/users`;
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: user.name,
+          nombre: user.name || user.nombre,
           email: user.email,
-          password: user.password,
-          role: user.role,
-          phone: user.phone || '',
+          contrasena: user.password || user.contrasena,
+          idroles: user.role || user.idroles,
+          telefono: user.phone || user.telefono || '',
         }),
       });
       const data = await response.json();
@@ -219,7 +222,6 @@ export const AuthProvider = ({ children }) => {
         users,
         saveRole,
         deleteRole,
-        users,
         saveUser,
         deleteUser,
         fetchUsers,

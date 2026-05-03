@@ -12,7 +12,11 @@ const servicioRoutes = require('./routes/servicioRoutes');
 const citaRoutes = require('./routes/citaRoutes');
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 const DEFAULT_ROLES = [
@@ -57,7 +61,6 @@ let userPasswordColumn = 'contrasena';
 let userRoleIdColumn = 'idroles';
 
 const initializeDatabase = async () => {
-
   await pool.query(`
     CREATE TABLE IF NOT EXISTS Roles (
       idRoles SERIAL PRIMARY KEY,
@@ -142,12 +145,9 @@ app.get('/', (req, res) => {
   res.send('Backend en funcionamiento');
 });
 
-// Rutas base API existentes refactorizadas
 app.use('/api/marca', marcaRoutes);
-app.use('/api', vehiculoRoutes); // Maneja /api/anio, /api/modelo/:idmarca, /api/motor
+app.use('/api', vehiculoRoutes);
 app.use('/api/cliente', clienteRoutes);
-
-// Nuevas Rutas (Preparadas para conectarse después)
 app.use('/api/servicios', servicioRoutes);
 app.use('/api/citas', citaRoutes);
 
@@ -156,7 +156,6 @@ app.get('/api/roles', async (req, res) => {
     const { rows } = await pool.query('SELECT * FROM Roles ORDER BY idRoles');
     res.json(rows.map(formatRoleRow));
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: 'Error al obtener roles' });
   }
 });
@@ -174,7 +173,6 @@ app.post('/api/roles', async (req, res) => {
     const { rows } = await pool.query('SELECT * FROM Roles WHERE idRoles = $1', [result.rows[0].idroles]);
     res.json(formatRoleRow(rows[0]));
   } catch (err) {
-    console.error(err);
     if (err.code === '23505') {
       return res.status(400).json({ error: 'El nombre del rol ya existe' });
     }
@@ -197,7 +195,6 @@ app.put('/api/roles/:id', async (req, res) => {
     if (!rows.length) return res.status(404).json({ error: 'Rol no encontrado' });
     res.json(formatRoleRow(rows[0]));
   } catch (err) {
-    console.error(err);
     if (err.code === '23505') {
       return res.status(400).json({ error: 'El nombre del rol ya existe' });
     }
@@ -214,7 +211,6 @@ app.delete('/api/roles/:id', async (req, res) => {
     await pool.query('DELETE FROM Roles WHERE idRoles = $1', [roleId]);
     res.json({ success: true });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: 'Error al eliminar el rol' });
   }
 });
@@ -229,7 +225,6 @@ app.get('/api/users', async (req, res) => {
     );
     res.json(rows.map(formatUserRow));
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: 'Error al obtener usuarios' });
   }
 });
@@ -260,7 +255,6 @@ app.post('/api/users', async (req, res) => {
     );
     res.json(formatUserRow(rows[0]));
   } catch (err) {
-    console.error(err);
     if (err.code === '23505') {
       return res.status(400).json({ error: 'El correo ya existe' });
     }
@@ -309,7 +303,6 @@ app.put('/api/users/:id', async (req, res) => {
     );
     res.json(formatUserRow(rows[0]));
   } catch (err) {
-    console.error(err);
     if (err.code === '23505') {
       return res.status(400).json({ error: 'El correo ya existe' });
     }
@@ -326,7 +319,6 @@ app.delete('/api/users/:id', async (req, res) => {
     await pool.query('DELETE FROM Usuarios WHERE idUsuarios = $1', [userId]);
     res.json({ success: true });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: 'Error al eliminar usuario' });
   }
 });
@@ -357,7 +349,6 @@ app.post('/api/auth/register', async (req, res) => {
     );
     res.json({ success: true });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: 'Error en el registro' });
   }
 });
@@ -393,12 +384,454 @@ app.post('/api/auth/login', async (req, res) => {
       permissions: Array.isArray(user.permisos) ? user.permisos : JSON.parse(user.permisos || '[]')
     });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: 'Error en el inicio de sesión' });
   }
 });
 
+app.get('/api/reportes/financiero', async (req, res) => {
+  try {
+    const ingresosResult = await pool.query('SELECT SUM(total) AS total FROM Venta');
+    const gastosResult = await pool.query('SELECT SUM(total) AS total FROM Compra');
 
+    const ingresos = parseFloat(ingresosResult.rows[0].total || 0);
+    const gastos = parseFloat(gastosResult.rows[0].total || 0);
+
+    res.json({
+      ingresos,
+      gastos,
+      balance: ingresos - gastos
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Error al generar reporte financiero' });
+  }
+});
+
+app.get('/api/reportes/inventario-bajo', async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      'SELECT nombre, stock_minimo, precio_venta FROM Productos WHERE stock_minimo > 10'
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al generar reporte de inventario' });
+  }
+});
+
+app.get('/api/reportes/citas-totales', async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT COUNT(*) as total_citas FROM Cita');
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al contar citas' });
+  }
+});
+
+app.get('/api/productos', async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT * FROM Productos ORDER BY idProductos DESC');
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al obtener productos' });
+  }
+});
+
+app.post('/api/productos', async (req, res) => {
+  try {
+    const { nombre, precio_unitario, precio_venta, stock_minimo, categoria, sku, ubicacion_almacen } = req.body;
+    const result = await pool.query(
+      'INSERT INTO Productos (nombre, precio_unitario, precio_venta, stock_minimo, categoria, sku, ubicacion_almacen) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [nombre, precio_unitario, precio_venta, stock_minimo, categoria, sku, ubicacion_almacen]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al crear producto' });
+  }
+});
+
+app.put('/api/productos/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nombre, precio_unitario, precio_venta, stock_minimo, categoria, sku, ubicacion_almacen } = req.body;
+    const result = await pool.query(
+      'UPDATE Productos SET nombre = $1, precio_unitario = $2, precio_venta = $3, stock_minimo = $4, categoria = $5, sku = $6, ubicacion_almacen = $7 WHERE idProductos = $8 RETURNING *',
+      [nombre, precio_unitario, precio_venta, stock_minimo, categoria, sku, ubicacion_almacen, id]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al actualizar producto' });
+  }
+});
+
+app.delete('/api/productos/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query('DELETE FROM Productos WHERE idProductos = $1', [id]);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Error al eliminar producto' });
+  }
+});
+
+app.get('/api/ventas', async (req, res) => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT v.*, u.nombre as nombre_usuario, p.nombre as nombre_producto
+      FROM Venta v
+      LEFT JOIN Usuarios u ON v.idUsuarios = u.idUsuarios
+      LEFT JOIN Productos p ON v.idProductos = p.idProductos
+      ORDER BY v.idVenta DESC
+    `);
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al obtener ventas' });
+  }
+});
+
+app.post('/api/ventas', async (req, res) => {
+  try {
+    const { idProductos, idUsuarios, metodo_pago, total } = req.body;
+    const result = await pool.query(
+      'INSERT INTO Venta (idProductos, idUsuarios, metodo_pago, total) VALUES ($1, $2, $3, $4) RETURNING *',
+      [idProductos, idUsuarios, metodo_pago, total]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al registrar venta' });
+  }
+});
+
+app.get('/api/reportes/ventas', async (req, res) => {
+  try {
+    const totalVentas = await pool.query('SELECT SUM(total) as monto, COUNT(*) as cantidad FROM Venta');
+    const historial = await pool.query('SELECT * FROM Venta ORDER BY idVenta DESC LIMIT 10');
+    res.json({
+      totalMonto: parseFloat(totalVentas.rows[0].monto || 0),
+      totalCantidad: parseInt(totalVentas.rows[0].cantidad || 0),
+      historial: historial.rows
+    });
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
+app.get('/api/reportes/productos', async (req, res) => {
+  try {
+    const valorInv = await pool.query('SELECT SUM(precio_unitario * stock_minimo) as valor FROM Productos');
+    const rendimiento = await pool.query(`
+      SELECT nombre, stock_minimo as stock, 
+      (SELECT COUNT(*) FROM Venta WHERE idproductos = p.idproductos) as ventas,
+      (SELECT SUM(total) FROM Venta WHERE idproductos = p.idproductos) as ganado
+      FROM Productos p ORDER BY ganado DESC LIMIT 5
+    `);
+    res.json({
+      valorInventario: parseFloat(valorInv.rows[0].valor || 0),
+      productos: rendimiento.rows
+    });
+  } catch (err) {
+    res.status(500).send('Error en reporte de productos');
+  }
+});
+
+app.get('/api/reportes/servicios', async (req, res) => {
+  try {
+    const distribucion = await pool.query(`
+      SELECT s.nombre, COUNT(v.idventa) as cantidad
+      FROM Servicio s
+      LEFT JOIN Venta v ON s.idservicio = v.idservicio
+      GROUP BY s.nombre
+    `);
+    res.json(distribucion.rows);
+  } catch (err) {
+    res.status(500).send('Error en reporte de servicios');
+  }
+});
+
+app.get('/api/compras/dashboard', async (req, res) => {
+  try {
+    const bajoStockQuery = await pool.query(`
+      SELECT idproductos, nombre, stock, stock_minimo, precio_venta,
+      (stock_minimo - stock + 10) as cantidad_sugerida 
+      FROM productos WHERE stock <= stock_minimo
+    `);
+
+    let costoEstimado = 0;
+    bajoStockQuery.rows.forEach(prod => {
+      costoEstimado += (prod.cantidad_sugerida * (prod.precio_venta * 0.6));
+    });
+
+    const statsMesQuery = await pool.query(`
+      SELECT 
+        COUNT(*) as ordenes_mes, 
+        COALESCE(SUM(total), 0) as total_compras
+      FROM orden_compra
+      WHERE EXTRACT(MONTH FROM fecha) = EXTRACT(MONTH FROM CURRENT_DATE)
+        AND EXTRACT(YEAR FROM fecha) = EXTRACT(YEAR FROM CURRENT_DATE)
+    `);
+
+    const ordenesQuery = await pool.query(`
+      SELECT o.idOrden, o.codigo_orden, o.fecha, o.total, o.estado_recepcion, o.estado_pago, p.nombre as proveedor
+      FROM Orden_Compra o
+      LEFT JOIN Proveedores p ON o.idProveedor = p.idProveedor
+      ORDER BY o.fecha DESC LIMIT 5
+    `);
+
+    const ordenesConDetalle = await Promise.all(ordenesQuery.rows.map(async (orden) => {
+      const detalles = await pool.query(`
+        SELECT d.cantidad, d.precio_unitario, d.subtotal, pr.nombre as producto
+        FROM Detalle_Compra d
+        JOIN Productos pr ON d.idProductos = pr.idProductos
+        WHERE d.idOrden = $1
+      `, [orden.idorden]);
+      
+      return {
+        ...orden,
+        productos: detalles.rows
+      };
+    }));
+
+    res.json({
+      productosPorOrdenar: bajoStockQuery.rows.length,
+      costoPendiente: costoEstimado,
+      bajoStock: bajoStockQuery.rows,
+      ordenesEsteMes: parseInt(statsMesQuery.rows[0].ordenes_mes),
+      totalCompras: parseFloat(statsMesQuery.rows[0].total_compras),
+      ordenesRecientes: ordenesConDetalle
+    });
+
+  } catch (err) {
+    res.status(500).send("Error en el dashboard de compras");
+  }
+});
+app.get('/api/proveedores', async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT idProveedor, nombre FROM Proveedores ORDER BY nombre');
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al obtener proveedores' });
+  }
+});
+
+app.post('/api/compras', async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const { idProveedor, total, estado_pago, productos } = req.body;
+    
+    await client.query('BEGIN');
+
+    const countQuery = await client.query('SELECT COUNT(*) FROM Orden_Compra');
+    const numOrden = parseInt(countQuery.rows[0].count) + 1;
+    const codigo_orden = `ORD-${numOrden.toString().padStart(3, '0')}`;
+
+    const insertOrden = await client.query(`
+      INSERT INTO Orden_Compra (codigo_orden, idProveedor, total, estado_recepcion, estado_pago)
+      VALUES ($1, $2, $3, 'PENDIENTE', $4)
+      RETURNING idOrden
+    `, [codigo_orden, idProveedor, total, estado_pago]);
+    
+    const idOrden = insertOrden.rows[0].idorden;
+
+    for (const prod of productos) {
+      await client.query(`
+        INSERT INTO Detalle_Compra (idOrden, idProductos, cantidad, precio_unitario, subtotal)
+        VALUES ($1, $2, $3, $4, $5)
+      `, [idOrden, prod.idProductos, prod.cantidad, prod.precio_unitario, prod.subtotal]);
+
+      await client.query(`
+        UPDATE Productos 
+        SET stock = COALESCE(stock, 0) + $1 
+        WHERE idProductos = $2
+      `, [prod.cantidad, prod.idProductos]);
+    }
+
+    await client.query('COMMIT');
+    res.json({ success: true, codigo_orden });
+
+  } catch (err) {
+    await client.query('ROLLBACK');
+    res.status(500).json({ error: 'Error al registrar la compra' });
+  } finally {
+    client.release();
+  }
+});
+
+app.get('/api/compras', async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        oc.idorden as id,
+        oc.codigo_orden as orden,
+        TO_CHAR(oc.fecha, 'DD/MM/YYYY') as fecha,
+        p.nombre as proveedor,
+        oc.estado_recepcion as "estadoRecepcion",
+        oc.estado_pago as "estadoPago",
+        oc.total,
+        json_agg(
+          json_build_object(
+            'nombre', pr.nombre,
+            'cantidad', dc.cantidad,
+            'costoUnitario', dc.precio_unitario,
+            'total', dc.subtotal
+          )
+        ) as productos
+      FROM orden_compra oc
+      LEFT JOIN proveedores p ON oc.idproveedor = p.idproveedor
+      LEFT JOIN detalle_compra dc ON oc.idorden = dc.idorden
+      LEFT JOIN productos pr ON dc.idproductos = pr.idproductos
+      GROUP BY oc.idorden, p.nombre
+      ORDER BY oc.idorden DESC;
+    `;
+    const { rows } = await pool.query(query);
+    res.json(rows);
+  } catch (err) {
+    console.error("Error al obtener compras:", err);
+    res.status(500).json({ error: 'Error al obtener el historial de compras' });
+  }
+});
+
+app.get('/api/compras/alertas', async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        idproductos as id,
+        nombre,
+        stock as "stockActual",
+        stock_minimo as minimo,
+        'Proveedor' as proveedor,
+        (stock_minimo - stock) as sugerido,
+        ((stock_minimo - stock) * precio_unitario) as "costoTotal"
+      FROM productos
+      WHERE stock <= stock_minimo;
+    `;
+    const { rows } = await pool.query(query);
+    
+    const productosPorOrdenar = rows.length;
+    const costoEstimado = rows.reduce((acc, curr) => acc + parseFloat(curr.costoTotal || 0), 0);
+
+    res.json({
+      bajoStock: rows,
+      productosPorOrdenar,
+      costoEstimado
+    });
+  } catch (err) {
+    console.error("Error en alertas:", err);
+    res.status(500).json({ error: 'Fallo en la consulta de stock' });
+  }
+});
+
+app.get('/api/productos_stats', async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        idproductos, nombre, sku, categoria, 
+        stock, stock_minimo, precio_unitario as costo, 
+        precio_venta, ubicacion,
+        (stock * precio_unitario) as valor_inventario,
+        CASE 
+          WHEN stock <= stock_minimo THEN 'bajo'
+          ELSE 'ok'
+        END as estado
+      FROM productos;
+    `;
+    const { rows } = await pool.query(query);
+    
+    
+    const stats = {
+      totalProductos: rows.length,
+      unidadesStock: rows.reduce((acc, p) => acc + parseInt(p.stock), 0),
+      bajoStock: rows.filter(p => p.estado === 'bajo').length,
+      valorTotal: rows.reduce((acc, p) => acc + parseFloat(p.valor_inventario), 0)
+    };
+
+    res.json({ productos: rows, stats });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+app.get('/api/productos_completo', async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        idproductos, 
+        nombre, 
+        sku, 
+        categoria, 
+        stock, 
+        stock_minimo, 
+        precio_unitario AS costo, 
+        precio_venta, 
+        ubicacion
+      FROM productos 
+      ORDER BY idproductos DESC
+    `;
+    const { rows } = await pool.query(query);
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error al obtener productos" });
+  }
+});
+
+
+app.post('/api/ventas_gestion', async (req, res) => {
+    const { folio, clienteNombre, metodoPago, productosSeleccionados, subtotal, iva, total } = req.body;
+    
+    try {
+        // 1. Insertar en tabla 'venta'
+        const nuevaVenta = await pool.query(
+            'INSERT INTO venta (folio, cliente, metodo_pago, subtotal, iva, total) VALUES ($1, $2, $3, $4, $5, $6) RETURNING idventa',
+            [folio, clienteNombre || 'Público General', metodoPago, subtotal, iva, total]
+        );
+
+        const idVentaGenerada = nuevaVenta.rows[0].idventa;
+
+        // 2. Insertar en 'detalle_venta' con los nombres de tu imagen image_e03c8c.png
+        for (const prod of productosSeleccionados) {
+            await pool.query(
+                'INSERT INTO detalle_venta (idventa, idproductos, cantidad, precio_unitario, subtotal_linea) VALUES ($1, $2, $3, $4, $5)',
+                [
+                    idVentaGenerada, 
+                    prod.idproductos, 
+                    prod.cantidad, 
+                    prod.precio, // precio_unitario
+                    prod.total   // subtotal_linea
+                ]
+            );
+        }
+
+        res.status(200).send('Venta registrada correctamente');
+    } catch (err) {
+        // Este log es vital: revísalo en tu terminal negra de Node.js
+        console.error("DETALLE DEL ERROR EN SERVIDOR:", err.message);
+        res.status(500).send("Error interno: " + err.message);
+    }
+});
+
+app.get('/api/ventas_completo', async (req, res) => {
+  try {
+    const resultado = await pool.query('SELECT * FROM venta ORDER BY fecha DESC');
+    res.json(resultado.rows); // Enviamos el array de filas directamente
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error al obtener ventas');
+  }
+});
+
+app.put('/api/ventas_gestion/:id', async (req, res) => {
+    const { id } = req.params;
+    const { clienteNombre, metodoPago } = req.body;
+    try {
+        await pool.query(
+            'UPDATE venta SET cliente = $1, metodo_pago = $2 WHERE idventa = $3',
+            [clienteNombre, metodoPago, id]
+        );
+        res.status(200).send('Venta actualizada');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send(err.message);
+    }
+});
 const PORT = process.env.PORT || 3000;
 
 initializeDatabase()
@@ -408,6 +841,6 @@ initializeDatabase()
     });
   })
   .catch((err) => {
-    console.error('Error inicializando la base de datos:', err);
     process.exit(1);
   });
+  
