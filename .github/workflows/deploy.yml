@@ -43,4 +43,4 @@ jobs:
             sudo k3s kubectl rollout restart deployment frontend
             sudo k3s kubectl rollout restart deployment backend
             sudo k3s kubectl rollout status deployment frontend
-            sudo k3s kubectl rollout status deployment backendi
+            sudo k3s kubectl rollout status deployment backend
