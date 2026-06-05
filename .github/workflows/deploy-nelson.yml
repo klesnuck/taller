@@ -1,0 +1,43 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - devops-nelson
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v3
+
+      - name: Login a Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_NELSON }}
+          password: ${{ secrets.DOCKER_CNELSON }}
+
+      - name: Build y push backend
+        run: |
+          docker build -t gxshv/taller-backend:latest ./backend
+          docker push gxshv/taller-backend:latest
+
+      - name: Build y push frontend
+        run: |
+          echo "VITE_API_BASE=http://${{ secrets.EC2_HOST_NELSON }}:30400" > ./taller-frontend/.env.production
+          echo "VITE_API_URL=http://${{ secrets.EC2_HOST_NELSON }}:30400" >> ./taller-frontend/.env.production
+          docker build -t gxshv/taller-frontend:latest ./taller-frontend
+          docker push gxshv/taller-frontend:latest
+
+      - name: Deploy en EC2
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST_NELSON }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_NELSON_KEY }}
+          script: |
+            sudo k3s kubectl rollout restart deployment backend
+            sudo k3s kubectl rollout restart deployment frontend
+            sudo k3s kubectl get pods
