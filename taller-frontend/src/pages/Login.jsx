@@ -67,7 +67,7 @@ function Login() {
       {/* Left side with blue background */}
       <div className="hidden md:flex md:w-1/2 flex-col justify-between p-12"
         style={{
-          backgroundImage: 'linear-gradient(rgba(10,24,60,0.75), rgba(10,24,60,0.75)),url("/assets/f1.jpeg")',
+          backgroundImage: 'linear-gradient(rgba(10,24,60,0.75), rgba(10,24,60,0.75)),url("/f1.jpeg")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
@@ -82,7 +82,7 @@ function Login() {
           </p>
           <div>
             <h3 className="font-bold text-lg">Garantía San Jorge</h3>
-            <p className="text-blue-200">Más de 30 años de experiencia</p>
+            <p className="text-blue-200">Más de 50 años de experiencia</p>
           </div>
         </div>
       </div>
