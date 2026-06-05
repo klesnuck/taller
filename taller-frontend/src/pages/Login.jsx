@@ -62,59 +62,6 @@ function Login() {
         return email.trim() && password.trim() && !emailError && !passwordError;
     };
 
-<<<<<<< HEAD
-  return (
-    <div className="min-h-screen flex">
-      {/* Left side with blue background */}
-      <div className="hidden md:flex md:w-1/2 flex-col justify-between p-12"
-        style={{
-          backgroundImage: 'linear-gradient(rgba(10,24,60,0.75), rgba(10,24,60,0.75)),url("/f1.jpeg")',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        }}>
-        <div>
-          <h2 className="text-white text-2xl font-bold mb-2">San Jorge</h2>
-          <p className="text-blue-200">Autoservicio</p>
-        </div>
-        <div className="text-white">
-          <p className="text-lg italic mb-6">
-            "El portal de clientes nos permite ofrecer transparencia total en nuestras cotizaciones y mantenimientos. Todo el historial de tu vehículo en un solo lugar."
-          </p>
-          <div>
-            <h3 className="font-bold text-lg">Garantía San Jorge</h3>
-            <p className="text-blue-200">Más de  8000 años de experiencia</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Right side with login form */}
-      <div className="w-full md:w-1/2 flex items-center justify-center p-6 bg-gray-50">
-        <div className="w-full max-w-md">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Bienvenido de vuelta</h1>
-          <p className="text-gray-600 mb-8">
-            Inicia sesión con tu correo y contraseña para acceder a la plataforma.
-          </p>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email field */}
-            <div>
-              <label className="block text-gray-700 font-semibold mb-2">
-                Correo electrónico
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  if (emailError) setEmailError("");
-                }}
-                onBlur={validateEmailField}
-                placeholder="ejemplo@correo.com"
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${emailError ? 'border-red-500' : 'border-gray-300'}`}
-              />
-              {emailError && <p className="mt-2 text-sm text-red-600">{emailError}</p>}
-=======
     return (
         <div className="min-h-screen flex">
             {/* Left side with blue background */}
@@ -135,10 +82,9 @@ function Login() {
                     </p>
                     <div>
                         <h3 className="font-bold text-lg">Garantía San Jorge</h3>
-                        <p className="text-blue-200">Más de  800 años de experiencia</p>
+                        <p className="text-blue-200">Más de  8 años de experiencia</p>
                     </div>
                 </div>
->>>>>>> 9bc0804b78ca9f7b07332ac7e8a9505a312f81b7
             </div>
 
             {/* Right side with login form */}
