@@ -82,7 +82,7 @@ function Login() {
           </p>
           <div>
             <h3 className="font-bold text-lg">Garantía San Jorge</h3>
-            <p className="text-blue-200">Más de 10 años de experiencia</p>
+            <p className="text-blue-200">Más de 190 años de experiencia</p>
           </div>
         </div>
       </div>
