@@ -40,6 +40,7 @@ jobs:
           script: | 
             sudo k3s ctr images rm docker.io/ig2005/taller-frontend:latest || true
             sudo k3s ctr images rm docker.io/ig2005/taller-backend:latest || true
+            sudo k3s crictl rmi --prune || true
             sudo k3s kubectl rollout restart deployment frontend
             sudo k3s kubectl rollout restart deployment backend
             sudo k3s kubectl rollout status deployment frontend
