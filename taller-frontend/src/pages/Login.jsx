@@ -113,6 +113,90 @@ function Login() {
                 className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${emailError ? 'border-red-500' : 'border-gray-300'}`}
               />
               {emailError && <p className="mt-2 text-sm text-red-600">{emailError}</p>}
+=======
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [error, setError] = useState("");
+    const [emailError, setEmailError] = useState("");
+    const [passwordError, setPasswordError] = useState("");
+    const [loading, setLoading] = useState(false);
+    const { login } = useContext(AuthContext);
+    const navigate = useNavigate();
+
+    const validateEmail = (value) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return value.length < 64 && emailRegex.test(value);
+    };
+
+    const validateEmailField = () => {
+        const message = email ? (validateEmail(email) ? "" : "El correo electrónico no es válido") : "El correo electrónico es obligatorio.";
+        setEmailError(message);
+        return !message;
+    };
+
+    const validatePasswordField = () => {
+        const message = password ? "" : "La contraseña es obligatoria.";
+        setPasswordError(message);
+        return !message;
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError("");
+
+        const isEmailValid = validateEmailField();
+        const isPasswordValid = validatePasswordField();
+
+        if (!isEmailValid || !isPasswordValid) {
+            setError("Corrige los errores antes de continuar.");
+            return;
+        }
+
+        setLoading(true);
+
+        const result = await login(email, password);
+        if (result.success) {
+            if (result.user?.role === "Administrador") {
+                navigate("/admin");
+            } else {
+                navigate("/");
+            }
+        } else {
+            setError(result.error || "Correo o contraseña incorrectos");
+            setPassword("");
+        }
+        setLoading(false);
+    };
+
+    const isLoginFormComplete = () => {
+        return email.trim() && password.trim() && !emailError && !passwordError;
+    };
+
+    return (
+        <div className="min-h-screen flex">
+            {/* Left side with blue background */}
+            <div className="hidden md:flex md:w-1/2 flex-col justify-between p-12"
+                style={{
+                    backgroundImage: 'linear-gradient(rgba(10,24,60,0.75), rgba(10,24,60,0.75)),url("/f1.jpeg")',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                }}>
+                <div>
+                    <h2 className="text-white text-2xl font-bold mb-2">San Jorge</h2>
+                    <p className="text-blue-200">Autoservicio</p>
+                </div>
+                <div className="text-white">
+                    <p className="text-lg italic mb-6">
+                        "El portal de clientes nos permite ofrecer transparencia total en nuestras cotizaciones y mantenimientos. Todo el historial de tu vehículo en un solo lugar."
+                    </p>
+                    <div>
+                        <h3 className="font-bold text-lg">Garantía San Jorge</h3>
+                        <p className="text-blue-200">Más de  8 años de experiencia</p>
+                    </div>
+                </div>
+
             </div>
 
             {/* Password field */}
