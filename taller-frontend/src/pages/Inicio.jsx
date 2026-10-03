@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Mapa from "/src/components/mapa.jsx";
+import { getFeatureFlag } from "../utils/featureFlags.js";
+import { trackABEvent } from "../utils/abAnalytics.js";
 
 function Inicio() {
   const imagenes = [
@@ -15,6 +17,30 @@ function Inicio() {
 
   const [index, setIndex] = useState(0);
   const [fade, setFade] = useState(true);
+  const [abVariant, setAbVariant] = useState(() => getFeatureFlag('ab_cta_button'));
+
+  // Escuchar cambios de Feature Flag en tiempo real (para demo en vivo)
+  useEffect(() => {
+    const handleFlagUpdate = (e) => {
+      if (!e.detail || e.detail.flagKey === 'ab_cta_button') {
+        const newVariant = getFeatureFlag('ab_cta_button');
+        setAbVariant(newVariant);
+      }
+    };
+    window.addEventListener('ab_flag_updated', handleFlagUpdate);
+    return () => window.removeEventListener('ab_flag_updated', handleFlagUpdate);
+  }, []);
+
+  // Registrar impresión (vista) del experimento A/B
+  useEffect(() => {
+    const variant = getFeatureFlag('ab_cta_button');
+    trackABEvent(variant, 'view');
+  }, [abVariant]);
+
+  // Manejador de clic en el CTA
+  const handleCTAClick = () => {
+    trackABEvent(abVariant, 'click');
+  };
 
   //cambiar imagen tiempo
   useEffect(() => {
@@ -55,9 +81,30 @@ function Inicio() {
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4">
             Bienvenidos a  Autoservicio <br />San Jorge.
           </h1>
-          <Link to="/servicios" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg inline-block text-center mt-2">
-            Cotizar
-          </Link>
+
+          {/* RENDERING DE VARIANTES A/B CON FEATURE FLAG */}
+          {abVariant === 'B' ? (
+            // VARIANTE B (Experimental): CTA optimizado, botón destacado naranja con animación e icono
+            <Link
+              to="/servicios"
+              onClick={handleCTAClick}
+              className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-extrabold py-3 px-8 rounded-xl shadow-lg hover:shadow-orange-500/50 transform hover:-translate-y-0.5 transition-all inline-flex items-center gap-2 mt-2 border border-amber-300/30 text-lg group"
+            >
+              <span>⚡ Agendar Cita en 2 Minutos</span>
+              <span className="text-xs bg-black/30 px-2.5 py-1 rounded-full font-normal group-hover:bg-black/40 transition-colors">
+                Sin Esperas
+              </span>
+            </Link>
+          ) : (
+            // VARIANTE A (Control): Botón original azul "Cotizar"
+            <Link
+              to="/servicios"
+              onClick={handleCTAClick}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg inline-block text-center mt-2 shadow transition-all"
+            >
+              Cotizar
+            </Link>
+          )}
         </div>
       </div>
 

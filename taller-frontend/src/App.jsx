@@ -21,6 +21,7 @@ import AdminServicios from "./pages/AdminServicios";
 import AdminMantenimiento from "./pages/AdminMantenimiento";
 import Ventas from "./pages/Ventas";
 import AdminVehiculos from "./pages/AdminVehiculos";
+import AdminABTesting from "./pages/AdminABTesting";
 import logo from "./assets/logg.png";
 import "./styles/barra.scss";
 
@@ -83,6 +84,7 @@ function App() {
         <Route path="/admin/servicios" element={<AdminRoute><AdminServicios /></AdminRoute>} />
         <Route path="/admin/ventas" element={<AdminRoute><Ventas /></AdminRoute>} />
         <Route path="/admin/catalogo-vehiculos" element={<AdminRoute><AdminVehiculos /></AdminRoute>} />
+        <Route path="/admin/ab-testing" element={<AdminRoute><AdminABTesting /></AdminRoute>} />
       </Routes>
     </div>
   );

@@ -24,6 +24,9 @@ export default function Productos() {
   const [soloBajoStock, setSoloBajoStock] = useState(false);
   const [ajustarStockProducto, setAjustarStockProducto] = useState(null);
   const [nuevoStockVal, setNuevoStockVal] = useState('');
+  const [isNuevaCategoria, setIsNuevaCategoria] = useState(false);
+  const [isNuevaMarca, setIsNuevaMarca] = useState(false);
+  const [productoAEliminar, setProductoAEliminar] = useState(null);
 
   const loadProductos = async () => {
     try {
@@ -41,10 +44,14 @@ export default function Productos() {
     loadProductos();
   }, []);
 
-  const resetForm = () => setNuevo({
-    id: null, nombre: '', marca: '', categoria: '', precio_venta: '',
-    stock_minimo: '', stock_actual: 0, sku: '', ubicacion_almacen: '',
-  });
+  const resetForm = () => {
+    setIsNuevaCategoria(false);
+    setIsNuevaMarca(false);
+    setNuevo({
+      id: null, nombre: '', marca: '', categoria: '', precio_venta: '',
+      stock_minimo: '', stock_actual: 0, sku: '', ubicacion_almacen: '',
+    });
+  };
 
   const manejarEnvio = async (e) => {
     e.preventDefault();
@@ -76,6 +83,8 @@ export default function Productos() {
   };
 
   const prepararEdicion = (p) => {
+    setIsNuevaCategoria(false);
+    setIsNuevaMarca(false);
     setNuevo({
       id: p.idproductos,
       nombre: p.nombre || '',
@@ -91,13 +100,15 @@ export default function Productos() {
     setShowModal(true);
   };
 
-  const handleEliminar = async (id) => {
-    if (!window.confirm('¿Seguro que quieres eliminar este producto?')) return;
+  const confirmarEliminar = async () => {
+    if (!productoAEliminar) return;
     try {
-      await deleteProducto(id);
+      await deleteProducto(productoAEliminar);
       await loadProductos();
     } catch (err) {
       toast.error(err.message, 'Error al eliminar');
+    } finally {
+      setProductoAEliminar(null);
     }
   };
 
@@ -125,9 +136,10 @@ export default function Productos() {
   const totalValue = productos.reduce((acc, p) => acc + (Number(p.stock_actual || 0) * Number(p.precio_venta || 0)), 0);
   const lowStockCount = productos.filter(p => Number(p.stock_actual || 0) < Number(p.stock_minimo || 0)).length;
 
-  // Categorías únicas del backend
+  // Categorías y Marcas únicas del backend
   const categoriasUnicas = [...new Set(productos.map(p => p.categoria).filter(Boolean))];
   const categoriasBotones = ['Todas', ...categoriasUnicas];
+  const marcasUnicas = [...new Set(productos.map(p => p.marca).filter(Boolean))];
 
   const productosFiltrados = productos
     .filter(p => categoriaFiltro === 'Todas' || p.categoria === categoriaFiltro)
@@ -216,7 +228,7 @@ export default function Productos() {
                         <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
                       </svg>
                     </button>
-                    <button onClick={() => handleEliminar(p.idproductos)} className="text-red-400 hover:text-red-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-50">
+                    <button onClick={() => setProductoAEliminar(p.idproductos)} className="text-red-400 hover:text-red-600 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-red-50">
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                       </svg>
@@ -317,13 +329,51 @@ export default function Productos() {
                 <div className="grid grid-cols-2 gap-5">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1.5">Categoría <span className="text-red-500">*</span></label>
-                    <input type="text" className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" required
-                      value={nuevo.categoria} onChange={e => setNuevo({ ...nuevo, categoria: e.target.value })} placeholder="Lubricantes, Filtros..." />
+                    {isNuevaCategoria ? (
+                      <div className="flex gap-2">
+                        <input type="text" autoFocus className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" required
+                          value={nuevo.categoria} onChange={e => setNuevo({ ...nuevo, categoria: e.target.value })} placeholder="Ej: Lubricantes..." />
+                        <button type="button" onClick={() => { setIsNuevaCategoria(false); setNuevo({ ...nuevo, categoria: '' }); }} className="px-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 hover:bg-gray-100 font-bold" title="Seleccionar de la lista">✕</button>
+                      </div>
+                    ) : (
+                      <select required className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white font-medium"
+                        value={nuevo.categoria} onChange={e => {
+                          if (e.target.value === 'NUEVA_CATEGORIA') {
+                            setIsNuevaCategoria(true);
+                            setNuevo({ ...nuevo, categoria: '' });
+                          } else {
+                            setNuevo({ ...nuevo, categoria: e.target.value });
+                          }
+                        }}>
+                        <option value="" disabled>Seleccione una...</option>
+                        {categoriasUnicas.map(c => <option key={c} value={c}>{c}</option>)}
+                        <option value="NUEVA_CATEGORIA" className="font-bold text-blue-600">+ Agregar nueva categoría</option>
+                      </select>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1.5">Marca</label>
-                    <input type="text" className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                      value={nuevo.marca} onChange={e => setNuevo({ ...nuevo, marca: e.target.value })} placeholder="Castrol, Bosch, NGK..." />
+                    {isNuevaMarca ? (
+                      <div className="flex gap-2">
+                        <input type="text" autoFocus className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                          value={nuevo.marca} onChange={e => setNuevo({ ...nuevo, marca: e.target.value })} placeholder="Ej: Castrol..." />
+                        <button type="button" onClick={() => { setIsNuevaMarca(false); setNuevo({ ...nuevo, marca: '' }); }} className="px-3 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 hover:bg-gray-100 font-bold" title="Seleccionar de la lista">✕</button>
+                      </div>
+                    ) : (
+                      <select required className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white font-medium"
+                        value={nuevo.marca} onChange={e => {
+                          if (e.target.value === 'NUEVA_MARCA') {
+                            setIsNuevaMarca(true);
+                            setNuevo({ ...nuevo, marca: '' });
+                          } else {
+                            setNuevo({ ...nuevo, marca: e.target.value });
+                          }
+                        }}>
+                        <option value="" disabled>Seleccione una...</option>
+                        {marcasUnicas.map(m => <option key={m} value={m}>{m}</option>)}
+                        <option value="NUEVA_MARCA" className="font-bold text-blue-600">+ Agregar nueva marca</option>
+                      </select>
+                    )}
                   </div>
                 </div>
 
@@ -440,6 +490,29 @@ export default function Productos() {
           </div>
         </div>
       )}
+      {/* Modal: Confirmar Eliminar */}
+      {productoAEliminar && (
+        <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden flex flex-col p-6 text-center">
+            <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">¿Eliminar producto?</h2>
+            <p className="text-gray-500 text-sm mb-6">Esta acción no se puede deshacer. Todo el stock será borrado permanentemente.</p>
+            <div className="flex gap-3">
+              <button type="button" onClick={() => setProductoAEliminar(null)} className="flex-1 px-4 py-2.5 text-sm font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                Cancelar
+              </button>
+              <button type="button" onClick={confirmarEliminar} className="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors shadow-md">
+                Sí, eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </AdminLayout>
   );
 }
