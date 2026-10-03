@@ -158,6 +158,10 @@ const updateVehiculo = async (req, res) => {
 const deleteVehiculo = async (req, res) => {
   const { id } = req.params;
   try {
+    // Desvincular de tablas relacionadas para evitar error de foreign key
+    await pool.query('UPDATE Cotizacion SET idVehiculos = NULL WHERE idVehiculos = $1', [id]);
+    await pool.query('UPDATE Mantenimiento SET idVehiculos = NULL WHERE idVehiculos = $1', [id]);
+    
     await pool.query('DELETE FROM Vehiculos WHERE idVehiculos = $1', [id]);
     res.json({ message: 'Vehículo eliminado' });
   } catch (err) {

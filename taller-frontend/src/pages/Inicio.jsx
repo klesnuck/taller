@@ -6,13 +6,13 @@ import { trackABEvent } from "../utils/abAnalytics.js";
 
 function Inicio() {
   const imagenes = [
-    "/assets/f1.jpeg",
-    "/assets/f2.jpeg",
-    "/assets/f3.jpeg",
-    "/assets/f4.jpeg",
-    "/assets/f5.jpeg",
-    "/assets/f6.jpeg",
-    "/assets/f7.jpeg",
+    "/f1.jpeg",
+    "/f2.jpeg",
+    "/f3.jpeg",
+    "/f4.jpeg",
+    "/f5.jpeg",
+    "/f6.jpeg",
+    "/f7.jpeg",
   ];
 
   const [index, setIndex] = useState(0);
