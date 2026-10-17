@@ -46,6 +46,7 @@ const catalogoRoutes = require('./routes/catalogoRoutes');
 const authRoutes = require('./routes/authRoutes');
 const usersRoutes = require('./routes/usersRoutes');
 const rolesRoutes = require('./routes/rolesRoutes');
+const abTestingRoutes = require('./routes/abTesting');
 
 const app = express();
 app.use(cors());
@@ -533,6 +534,7 @@ app.use('/api/catalogo', catalogoRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/roles', rolesRoutes);
+app.use('/api/ab-testing', abTestingRoutes);
 
 
 // ---------------------------------------------------------------------------
