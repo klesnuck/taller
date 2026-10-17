@@ -19,7 +19,7 @@ function Login() {
   };
 
   const validateEmailField = () => {
-    const message = email ? (validateEmail(email) ? "" : "El correo electrónico no es válido") : "El correo electrónico es obligatorio.";
+    const message = email ? (validateEmail(email) ? "" : "El correo electrónico no es válido") : "El correo electrónico es completamente obligatorio.";
     setEmailError(message);
     return !message;
   };
